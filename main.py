@@ -36,7 +36,8 @@ with open('links.txt','r') as f:
 def main():
     while True:
         for i in range(len(links)):
-            checkOnlineInventory(names[i], skus[i], links[i])
+            while(checkOnlineInventory(names[i], skus[i], links[i]) == False):
+                checkOnlineInventory(names[i], skus[i], links[i])
 
 def checkOnlineInventory(name, sku, link):
     url = 'https://availability.dickssportinggoods.com/v1/inventoryapis/searchinventory?location=0&sku={}'.format(sku)
@@ -51,8 +52,7 @@ def checkOnlineInventory(name, sku, link):
     try:
         r = requests.get(url, timeout=6, proxies=proxy, headers=tempHeaders).json()
     except:
-        checkOnlineInventory(name, sku, link)
-        return
+        return False
 
     ats = r['data']['skus'][0]['atsqty']
     message = time.strftime('%a %H:%M:%S') + " Online\nItem: {}\navailable to ship: {}\n{}".format(name, ats, link)
@@ -60,6 +60,7 @@ def checkOnlineInventory(name, sku, link):
 
     if(int(ats) > 0):
         discord.sendDiscord(message, "online", sku, "inventory")
+    return True
 
 
 if __name__ == "__main__":
