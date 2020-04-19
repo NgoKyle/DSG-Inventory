@@ -14,17 +14,24 @@ names = []
 #get SKUs, Products name from URL
 with open('links.txt','r') as f:
     for line in f:
-        link = line.strip()
-        links.append(link)
+        try:
+            link = line.strip()
 
-        r = requests.get(link)
-        bsObj = BeautifulSoup(r.text, 'html.parser')
+            r = requests.get(link)
+            bsObj = BeautifulSoup(r.text, 'html.parser')
 
-        name = bsObj.find("h1", {'itemprop':'name'}).text
-        names.append(name)
+            name = bsObj.find("h1", {'itemprop':'name'}).text
 
-        sku = bsObj.find("ul", {"class":"product-numbers"}).findAll("li")[1].find("span").text
-        skus.append(sku)
+            sku = bsObj.find("ul", {"class":"product-numbers"}).findAll("li")[1].find("span").text
+
+            links.append(link)
+            names.append(name)
+            skus.append(sku)
+        except:
+            continue
+    links.append("https://www.dickssportinggoods.com/p/bowflex-selecttech-552-dumbbells-16bfxuslcttchdmbbslc/16bfxuslcttchdmbbslc")
+    names.append("Bowflex selecttech 552")
+    skus.append("11465449")
 
 def main():
     while True:
@@ -35,9 +42,14 @@ def checkOnlineInventory(name, sku, link):
     url = 'https://availability.dickssportinggoods.com/v1/inventoryapis/searchinventory?location=0&sku={}'.format(sku)
     tempHeaders = config.header
     tempHeaders['referer'] = link
-    
+
+    proxy = {
+      "http": "http://108.59.14.203:13010",
+      "https": "http://108.59.14.203:13010",
+    }
+
     try:
-        r = requests.get(url, timeout=6, headers=tempHeaders, proxies=config.proxy).json()
+        r = requests.get(url, timeout=6, proxies=proxy, headers=tempHeaders).json()
     except:
         checkOnlineInventory(name, sku, link)
         return
