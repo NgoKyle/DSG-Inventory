@@ -33,9 +33,11 @@ def main():
 
 def checkOnlineInventory(name, sku, link):
     url = 'https://availability.dickssportinggoods.com/v1/inventoryapis/searchinventory?location=0&sku={}'.format(sku)
-
+    tempHeaders = config.header
+    tempHeaders['referer'] = link
+    
     try:
-        r = requests.get(url, timeout=6, headers=config.header, proxies=config.proxy).json()
+        r = requests.get(url, timeout=6, headers=tempHeaders, proxies=config.proxy).json()
     except:
         checkOnlineInventory(name, sku, link)
         return
